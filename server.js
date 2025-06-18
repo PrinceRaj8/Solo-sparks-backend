@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -12,23 +13,28 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
-// ✅ Updated CORS middleware
+// ✅ Secure & specific CORS setup for Vercel frontend
 app.use(cors({
-  origin: 'https://solo-sparks.vercel.app', // replace with your deployed frontend URL
-  credentials: true
+  origin: 'https://solo-sparks-frontend-tpt6.vercel.app',
+  credentials: true,
 }));
 
-// ✅ Body parser
+// ✅ Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// ✅ Optional: Root route to test backend
+app.get('/', (req, res) => {
+  res.send('🔥 Solo Sparks Backend Running');
+});
+
+// ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/quests', questRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/users', userRoutes);
 
-// Server start
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(colors.green(`✅ Server running on port ${PORT}`));
