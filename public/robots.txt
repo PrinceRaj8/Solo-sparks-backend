@@ -1,6 +1,0 @@
-# Allow all crawlers
-User-agent: *
-Disallow:
-
-# Sitemap (if added later)
-# Sitemap: https://solosparks.app/sitemap.xml
