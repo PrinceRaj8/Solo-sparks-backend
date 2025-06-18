@@ -1,43 +1,50 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const connectDB = require("./config/db");
-const errorHandler = require("./middleware/errorHandler");
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+const questRoutes = require('./routes/questRoutes');
+const reflectionRoutes = require('./routes/reflectionRoutes');
+const rewardRoutes = require('./routes/rewardRoutes');
+const errorHandler = require('./middleware/errorHandler');
+const cloudinary = require('cloudinary').v2;
 
-// Route files
-const authRoutes = require("./routes/authRoutes");
-const userRoutes = require("./routes/userRoutes");
-const questRoutes = require("./routes/questRoutes");
-const rewardRoutes = require("./routes/rewardRoutes");
-
-// Load env vars
+// Load environment variables
 dotenv.config();
 
-// Connect to DB
+// Connect to MongoDB
 connectDB();
+
+// Cloudinary config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 
-// Middlewares
+// Middleware
 app.use(cors());
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({ extended: true })); // for parsing form data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/quests", questRoutes);
-app.use("/api/rewards", rewardRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/quests', questRoutes);
+app.use('/api/reflections', reflectionRoutes);
+app.use('/api/rewards', rewardRoutes);
 
-// Home route
-app.get("/", (req, res) => {
-  res.send("🎇 Solo Sparks API is running...");
-});
-
-// Error handler
+// Error handler middleware
 app.use(errorHandler);
 
-// Start server
+// Default route
+app.get('/', (req, res) => {
+  res.send('Solo Sparks API is running...');
+});
+
+// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
+app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
+});
