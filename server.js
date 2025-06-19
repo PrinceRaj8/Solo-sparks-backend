@@ -4,11 +4,9 @@ const cors = require('cors');
 const colors = require('colors');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
+const createDefaultUser = require('./utils/createDefaultUser'); // 👈 import it
 
 dotenv.config();
-
-// Connect to MongoDB
-connectDB();
 
 const authRoutes = require('./routes/authRoutes');
 const questRoutes = require('./routes/questRoutes');
@@ -41,7 +39,11 @@ app.use('/api/users', userRoutes);
 // Error handling middleware (must be after routes)
 app.use(errorHandler);
 
+// Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(colors.green(`✅ Server running on port ${PORT}`));
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(colors.green(`✅ Server running on port ${PORT}`));
+    createDefaultUser(); // 🚀 Create test user on startup
+  });
 });
