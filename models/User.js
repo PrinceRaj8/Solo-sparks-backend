@@ -18,74 +18,29 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please enter your password"],
       minlength: 6,
     },
-    mood: {
-      type: String,
-      default: "Neutral",
-    },
-    moodLogs: [
-      {
-        date: String,
-        moodScore: Number,
-      },
-    ],
-    personalityTraits: {
-      type: [String],
-      default: [],
-    },
-    preferences: {
-      type: [String],
-      default: [],
-    },
-    sparkPoints: {
-      type: Number,
-      default: 0,
-    },
-    completedQuests: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Quest",
-      },
-    ],
+    mood: { type: String, default: "Neutral" },
+    moodLogs: [{ date: String, moodScore: Number }],
+    personalityTraits: { type: [String], default: [] },
+    preferences: { type: [String], default: [] },
+    sparkPoints: { type: Number, default: 0 },
+    completedQuests: [{ type: mongoose.Schema.Types.ObjectId, ref: "Quest" }],
     reflections: [
       {
-        questId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Quest",
-        },
+        questId: { type: mongoose.Schema.Types.ObjectId, ref: "Quest" },
         text: String,
-        imageUrl: {
-          type: String,
-          default: "",
-        },
-        audioUrl: {
-          type: String,
-          default: "",
-        },
-        date: {
-          type: Date,
-          default: Date.now,
-        },
+        imageUrl: { type: String, default: "" },
+        audioUrl: { type: String, default: "" },
+        date: { type: Date, default: Date.now },
       },
     ],
-    rewardsUnlocked: {
-      type: [String],
-      default: [],
-    },
-    profileBoost: {
-      type: Boolean,
-      default: false,
-    },
-    streak: {
-      type: Number,
-      default: 0,
-    },
+    rewardsUnlocked: { type: [String], default: [] },
+    profileBoost: { type: Boolean, default: false },
+    streak: { type: Number, default: 0 },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Encrypt password before saving
+// Password Hashing
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -93,7 +48,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Match password
+// Match Password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
