@@ -1,5 +1,5 @@
-const User = require('../models/User');
 const Quest = require('../models/Quest');
+const User = require('../models/User');
 const cloudinary = require('../utils/cloudinary');
 
 exports.getTodaysQuest = async (req, res) => {
@@ -13,30 +13,31 @@ exports.getTodaysQuest = async (req, res) => {
 
 exports.completeQuest = async (req, res) => {
   try {
-    const { userId, questId, reflectionText } = req.body;
+    const { questId, reflectionText } = req.body;
+    const user = await User.findById(req.user.id);
+    let imageUrl = "", audioUrl = "";
 
-    let imageUrl = null, audioUrl = null;
-
-    if (req.files.image) {
-      const result = await cloudinary.uploader.upload_stream({ resource_type: "image" }, () => {});
-      imageUrl = result.secure_url;
+    if (req.files?.image) {
+      const imageResult = await cloudinary.uploader.upload(req.files.image.tempFilePath);
+      imageUrl = imageResult.secure_url;
     }
 
-    if (req.files.audio) {
-      const result = await cloudinary.uploader.upload_stream({ resource_type: "video" }, () => {});
-      audioUrl = result.secure_url;
+    if (req.files?.audio) {
+      const audioResult = await cloudinary.uploader.upload(req.files.audio.tempFilePath, { resource_type: "video" });
+      audioUrl = audioResult.secure_url;
     }
 
-    const user = await User.findById(userId);
-    user.completedQuests.push({
+    // Save inside `reflections` array (embedded)
+    user.reflections.push({
       questId,
-      reflectionText,
-      reflectionImage: imageUrl,
-      reflectionAudio: audioUrl,
-      completedAt: new Date()
+      text: reflectionText,
+      imageUrl,
+      audioUrl,
+      date: new Date(),
     });
 
-    user.sparkPoints += 10; // reward for completion
+    user.completedQuests.push(questId);
+    user.sparkPoints += 10;
     await user.save();
 
     res.json({ msg: "Quest completed!", sparkPoints: user.sparkPoints });
