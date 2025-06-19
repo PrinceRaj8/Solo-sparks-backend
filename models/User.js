@@ -22,6 +22,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "Neutral",
     },
+    moodLogs: [
+      {
+        date: String,
+        moodScore: Number,
+      },
+    ],
     personalityTraits: {
       type: [String],
       default: [],
@@ -47,8 +53,14 @@ const userSchema = new mongoose.Schema(
           ref: "Quest",
         },
         text: String,
-        imageUrl: String,
-        audioUrl: String,
+        imageUrl: {
+          type: String,
+          default: "",
+        },
+        audioUrl: {
+          type: String,
+          default: "",
+        },
         date: {
           type: Date,
           default: Date.now,
@@ -56,12 +68,16 @@ const userSchema = new mongoose.Schema(
       },
     ],
     rewardsUnlocked: {
-      type: [String], // store reward IDs or types
+      type: [String],
       default: [],
     },
     profileBoost: {
       type: Boolean,
       default: false,
+    },
+    streak: {
+      type: Number,
+      default: 0,
     },
   },
   {
@@ -82,5 +98,4 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);
